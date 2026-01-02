@@ -80,10 +80,10 @@ for start, end in zip(chunked_data[:-1], chunked_data[1:]):
         f.seek(start)
         text = f.read(end-start).decode("utf-8")
 
-for part in text.split("<|endoftext|>"):
-    for m in re.finditer(regex_syntax, part):
-        tok = tuple(m.group().encode("utf-8"))
-        global_word_counts[tok] += 1  
+    for part in text.split("<|endoftext|>"):
+        for m in re.finditer(regex_syntax, part):
+            tok = tuple(m.group().encode("utf-8"))
+            global_word_counts[tok] += 1  
 
 def train(global_word_counts, new_token_int, target_vocab_size):
     """
