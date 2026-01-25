@@ -15,6 +15,18 @@ class LinearLayer(nn.Module):
     def forward(self, x):
         return ((x@self.weight.T))
     
+class Embedding(nn.Module):
+    def __init__(self, num_embeddings, embedding_dim, device=None, dtype=None):
+        super().__init__()
+        self.num_embeddings = num_embeddings
+        self.embedding_dim = embedding_dim
+        self.embed = nn.Parameter(torch.empty(num_embeddings, embedding_dim))
+        nn.init.trunc_normal_(self.embed, a = -3, b=3)
+
+    def forward(self, token_ids):
+        return self.embed[token_ids]
+
+
 if __name__ == "__main__":
     print("hello")
     model  = LinearLayer(2,3)
