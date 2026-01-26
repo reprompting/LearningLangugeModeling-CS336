@@ -40,7 +40,7 @@ class RMSNorm(nn.Module):
         mean_of_squares = sum_of_squares / self.d_model
         rms = torch.sqrt(mean_of_squares + self.eps)
         result =  x / rms * self.param
-        return result
+        return result.to(in_dtype)
         
 
 
