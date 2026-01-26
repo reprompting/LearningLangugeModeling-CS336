@@ -29,9 +29,19 @@ class Embedding(nn.Module):
 class RMSNorm(nn.Module):
     def __init__(self, d_model, eps=1e-5, device=None, dtype=None):
         super().__init__()
+        self.param = nn.Parameter(torch.ones(d_model))
+        self.eps = eps 
+        self.d_model = d_model
 
     def forward(self, x):
-        pass 
+        in_dtype = x.dtype
+        x = x.to(torch.float32)
+        sum_of_squares = torch.sum(x.square(), dim = -1, keepdim=True)
+        mean_of_squares = sum_of_squares / self.d_model
+        rms = torch.sqrt(mean_of_squares + self.eps)
+        result =  x / rms * self.param
+        return result
+        
 
 
 if __name__ == "__main__":
