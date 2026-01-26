@@ -27,7 +27,7 @@ class Embedding(nn.Module):
         return self.embed[token_ids]
 
 class RMSNorm(nn.Module):
-    def __init__(self, d_model, eps=1e-5, device=None, dtype=None)
+    def __init__(self, d_model, eps=1e-5, device=None, dtype=None):
         super().__init__()
 
     def forward(self, x):
