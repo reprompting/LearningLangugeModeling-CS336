@@ -43,7 +43,24 @@ class RMSNorm(nn.Module):
         return result.to(in_dtype)
         
 
+def SiLU(x):
+    return x * torch.sigmoid(x)
 
+class PositionWiseFeedForward(nn.Module):
+    def __init__(self, d_model, device=None, dtype=None):
+        super().__init__()
+        dff = int(d_model * (8 / 3))
+        dff = (dff + 63) // 64 *64 # making it a multiple of 64
+        self.layer1 = LinearLayer(d_model, dff, device = device, dtype = dtype)
+        self.layer2 = LinearLayer(dff, d_model, device = device, dtype = dtype)
+        self.layer3 = LinearLayer(d_model, dff, device = device, dtype = dtype)
+
+    def forward(self, x):
+        W1x = self.layer1(x)
+        W3x = self.layer3(x)
+        final = self.layer2(SiLU(W1x) * W3x)
+        return final 
+    
 if __name__ == "__main__":
     print("hello")
     model  = LinearLayer(2,3)
