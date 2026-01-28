@@ -61,6 +61,46 @@ class PositionWiseFeedForward(nn.Module):
         final = self.layer2(SiLU(W1x) * W3x)
         return final 
     
+    class RotaryPositionalEmbedding(nn.Module):
+        def __inti__(self, theta, d_k, max_seq_len, device = None):
+            super().__init__()
+            self.theta = theta 
+            if theta != 0:
+                pos = torch.arange(max_seq_len, deice = device)[:, None]
+                dim = torch.arange(0, d_k, device = device)[None, :]
+                inv_frq = 1.0 / (theta **(dim/d_k))
+                freqs = pos * inv_frq
+
+                self.register_buffer("cos", freqs.cos(), persistent = False)
+                self.register_buffer("sin", freqs.sin(), persistent=False)          
+
+        def forward(self, x, token_positions):
+            if self.theta == 0:
+                return x 
+            
+            seq_len = x.shape[-2]
+            if token_positions is None:
+                cos = self.cos[:seq_len]
+                sin = self.sin[:seq_len]
+            else:
+                cos = self.cos[token_positions]
+                sin = self.sin[token_positions]
+
+            cos = cos.unsqueeze(0).unsqueeze(0)
+            sin = sin.unsqueeze(0).unsqueeze(0)
+
+            x_even = x[..., ::2]
+            x_odd = x[...,1::2]
+
+            out_even = x_even*cos - x_odd*sin 
+            out_odd = x_even*sin + x_odd*cos 
+
+            out = torch.empty_like(x)
+            out[..., ::2]= out_even 
+            out[..., 1::2]=out_odd 
+
+            return out 
+
 if __name__ == "__main__":
     print("hello")
     model  = LinearLayer(2,3)
